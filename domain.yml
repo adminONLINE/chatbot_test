@@ -1,0 +1,107 @@
+version: "3.1"
+
+intents:
+  - greet
+  - goodbye
+  - affirm
+  - deny
+  - request_selling
+  - request_information
+  - ask_price
+  - ask_benefits
+  - ask_types
+  - ask_installation
+  - ask_maintenance
+  - provide_location
+  - provide_energy_usage
+  - ask_financing
+  - ask_warranty
+  - thankyou
+  - out_of_scope
+
+entities:
+  - location
+  - energy_usage
+
+slots:
+  location:
+    type: text
+    influence_conversation: true
+  energy_usage:
+    type: float
+    influence_conversation: true
+  customer_needs:
+    type: text
+    influence_conversation: true
+
+responses:
+  utter_greet:
+  - text: "Hello! Welcome to SolarTech Solutions. Are you looking to purchase solar panels or would you like information about our solar energy solutions?"
+
+  utter_goodbye:
+  - text: "Thank you for contacting SolarTech Solutions. Have a wonderful day and we look forward to helping you go green!"
+  - text: "Goodbye! Feel free to reach out anytime if you have more questions about solar energy."
+
+  utter_ask_help:
+  - text: "How can I help you today? Are you interested in buying solar panels or do you need more information first?"
+
+  utter_selling_intro:
+  - text: "Great! I'd be happy to help you purchase solar panels. To provide you with the best recommendations, could you tell me your location and approximate monthly energy usage?"
+
+  utter_information_intro:
+  - text: "I'd be happy to provide information about solar panels! What specifically would you like to know? I can help with benefits, pricing, types, installation, and more."
+
+  utter_ask_location:
+  - text: "What's your location? This helps me determine sunlight availability and local incentives."
+  - text: "Could you please share your location or zip code?"
+
+  utter_ask_energy_usage:
+  - text: "What's your average monthly energy consumption in kWh? This helps us size the right system for you."
+  - text: "How much energy do you typically use per month?"
+
+  utter_benefits:
+  - text: "Solar panels offer numerous benefits: reduce electricity bills by 70-90%, increase property value, reduce carbon footprint, earn tax credits and incentives, and achieve energy independence. Most systems pay for themselves in 6-8 years!"
+
+  utter_price_range:
+  - text: "Solar panel systems typically cost $15,000-$25,000 after tax credits. However, pricing varies based on your energy needs, location, and available incentives. Would you like a personalized quote?"
+
+  utter_types_panels:
+  - text: "We offer three main types: 1) Monocrystalline (most efficient, 20-23% efficiency), 2) Polycrystalline (good value, 15-17% efficiency), and 3) Thin-film (flexible, lightweight, 10-12% efficiency). Monocrystalline is our most popular choice."
+
+  utter_installation_process:
+  - text: "Our installation process takes 1-3 days: 1) Site assessment and design, 2) Permit acquisition, 3) Installation day, 4) Inspection and connection. We handle everything from start to finish!"
+
+  utter_maintenance:
+  - text: "Solar panels are very low maintenance! Just clean them 2-4 times a year and remove debris. They come with 25-year warranties and typically last 30+ years with minimal degradation."
+
+  utter_financing_options:
+  - text: "We offer flexible financing: 1) $0 down solar loans, 2) Power Purchase Agreements (PPA), 3) Solar leases, and 4) Cash purchases with discounts. Most customers save money from day one!"
+
+  utter_warranty:
+  - text: "Our panels come with industry-leading warranties: 25-year performance guarantee (85% output), 10-year workmanship warranty, and 25-year inverter warranty. We stand behind our products!"
+
+  utter_location_received:
+  - text: "Thank you! {location} has excellent solar potential. Do you know your monthly energy usage?"
+
+  utter_energy_usage_received:
+  - text: "Thanks! Based on {energy_usage} kWh monthly usage, I can recommend the perfect system size for you."
+
+  utter_personalized_recommendation:
+  - text: "Based on your location ({location}) and energy usage ({energy_usage} kWh), I recommend a {system_size}kW system costing approximately ${price}. This would eliminate about {percentage}% of your electricity bill!"
+
+  utter_thankyou:
+  - text: "You're welcome! I'm here to help you make the best decision for your solar energy needs."
+
+  utter_default:
+  - text: "I'm here to help with solar panels and solar energy solutions. Could you rephrase your question or ask about solar panels, pricing, installation, or benefits?"
+
+  utter_out_of_scope:
+  - text: "I specialize in solar panels and solar energy solutions. I'd be happy to help you with any questions about going solar, pricing, installation, or benefits of solar energy!"
+
+actions:
+  - action_provide_recommendation
+  - action_calculate_system_size
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CW Enerji - Sesli Konuşma</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .voice-container {
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .voice-header {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .voice-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .voice-status {
+            font-size: 1rem;
+            opacity: 0.9;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .voice-visualizer {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .voice-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(76, 175, 80, 0.3);
+            position: relative;
+        }
+
+        .voice-circle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(76, 175, 80, 0.4);
+        }
+
+        .voice-circle.listening {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            animation: pulse 1.5s infinite;
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4);
+        }
+
+        .voice-circle.speaking {
+            background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
+            animation: pulse 1s infinite;
+            box-shadow: 0 10px 30px rgba(156, 39, 176, 0.4);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.7;
+                transform: scale(1.05);
+            }
+        }
+
+        .voice-text {
+            margin-top: 30px;
+            text-align: center;
+            color: #333;
+            font-size: 1.1rem;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            width: 100%;
+        }
+
+        .voice-controls {
+            padding: 30px;
+            background: #f8f9fa;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            color: #333;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .control-btn.primary {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+        }
+
+        .conversation-history {
+            position: absolute;
+            top: 100px;
+            left: 20px;
+            right: 20px;
+            bottom: 200px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 20px;
+            overflow-y: auto;
+            display: none;
+            z-index: 10;
+        }
+
+        .conversation-history.active {
+            display: block;
+        }
+
+        .conversation-item {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+
+        .conversation-item.user {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-left: 30px;
+        }
+
+        .conversation-item.bot {
+            background: #f0f0f0;
+            color: #333;
+            margin-right: 30px;
+        }
+
+        @media (max-width: 600px) {
+            .voice-container {
+                height: 500px;
+                margin: 0 10px;
+            }
+
+            .voice-circle {
+                width: 150px;
+                height: 150px;
+                font-size: 60px;
+            }
+
+            .voice-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="voice-container">
+        <div class="voice-header">
+            <h1>CW Enerji</h1>
+            <div class="voice-status" id="voiceStatus">Hazır - Konuşmaya Başla</div>
+        </div>
+
+        <div class="voice-visualizer">
+            <div class="voice-circle" id="voiceButton">
+                🎤
+            </div>
+            <div class="voice-text" id="voiceText">
+                Mikrofona dokun ve konuşmaya başla
+            </div>
+        </div>
+
+        <div class="conversation-history" id="conversationHistory"></div>
+
+        <div class="voice-controls">
+            <button class="control-btn" onclick="clearHistory()">Temizle</button>
+            <button class="control-btn primary" onclick="goToChat()">Yazılı Sohbet</button>
+        </div>
+    </div>
+
+    <script>
+        class VoiceInterface {
+            constructor() {
+                this.voiceButton = document.getElementById('voiceButton');
+                this.voiceStatus = document.getElementById('voiceStatus');
+                this.voiceText = document.getElementById('voiceText');
+                this.conversationHistory = document.getElementById('conversationHistory');
+
+                this.recognition = null;
+                this.isListening = false;
+                this.conversation = [];
+
+                this.initVoiceRecognition();
+                this.initEventListeners();
+            }
+
+            initEventListeners() {
+                this.voiceButton.addEventListener('click', () => this.toggleVoiceRecognition());
+
+                // Touch support for mobile
+                this.voiceButton.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.toggleVoiceRecognition();
+                });
+            }
+
+            initVoiceRecognition() {
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    this.recognition = new SpeechRecognition();
+
+                    this.recognition.continuous = false;
+                    this.recognition.interimResults = true;
+                    this.recognition.lang = 'tr-TR';
+
+                    this.recognition.onstart = () => {
+                        this.isListening = true;
+                        this.voiceButton.classList.add('listening');
+                        this.voiceButton.innerHTML = '🎙';
+                        this.voiceStatus.textContent = 'Dinliyorum...';
+                        this.voiceText.textContent = 'Şimdi konuşabilirsiniz';
+                    };
+
+                    this.recognition.onresult = (event) => {
+                        let finalTranscript = '';
+
+                        for (let i = event.resultIndex; i < event.results.length; i++) {
+                            const transcript = event.results[i][0].transcript;
+                            if (event.results[i].isFinal) {
+                                finalTranscript = transcript;
+                            }
+                        }
+
+                        if (finalTranscript) {
+                            this.voiceText.textContent = finalTranscript;
+                            this.processUserMessage(finalTranscript);
+                        }
+                    };
+
+                    this.recognition.onerror = (event) => {
+                        this.handleError(event.error);
+                    };
+
+                    this.recognition.onend = () => {
+                        this.isListening = false;
+                        this.voiceButton.classList.remove('listening');
+                        this.voiceButton.innerHTML = '🎤';
+                        this.voiceStatus.textContent = 'Hazır - Konuşmaya Başla';
+                        this.voiceText.textContent = 'Mikrofona dokun ve konuşmaya başla';
+                    };
+                } else {
+                    this.handleError('speech-recognition-not-supported');
+                }
+            }
+
+            toggleVoiceRecognition() {
+                if (!this.recognition) {
+                    this.handleError('speech-recognition-not-supported');
+                    return;
+                }
+
+                if (this.isListening) {
+                    this.recognition.stop();
+                } else {
+                    this.recognition.start();
+                }
+            }
+
+            async processUserMessage(message) {
+                // Add user message to conversation
+                this.addConversationItem(message, 'user');
+
+                this.voiceStatus.textContent = 'İşleniyor...';
+
+                try {
+                    const response = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ message: message })
+                    });
+
+                    const data = await response.json();
+
+                    if (data && data.length > 0) {
+                        const botResponse = data[0];
+                        let responseText = '';
+
+                        if (typeof botResponse === 'object') {
+                            responseText = botResponse.content || botResponse.title || 'Cevap alınamadı';
+                        } else {
+                            responseText = botResponse;
+                        }
+
+                        this.addConversationItem(responseText, 'bot');
+                        await this.speak(responseText);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    const errorMessage = 'Üzgünüm, şu anda bağlantı sorunu yaşıyorum. Lütfen tekrar deneyin.';
+                    this.addConversationItem(errorMessage, 'bot');
+                    await this.speak(errorMessage);
+                }
+
+                this.voiceStatus.textContent = 'Hazır - Konuşmaya Başla';
+            }
+
+            async speak(text) {
+                try {
+                    this.voiceButton.classList.add('speaking');
+                    this.voiceButton.innerHTML = '🔊';
+                    this.voiceStatus.textContent = 'Konuşuyor...';
+
+                    const response = await fetch('/api/tts', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ text: text })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const audio = new Audio('data:audio/mp3;base64,' + data.audio);
+
+                        audio.onended = () => {
+                            this.voiceButton.classList.remove('speaking');
+                            this.voiceButton.innerHTML = '🎤';
+                            this.voiceStatus.textContent = 'Hazır - Konuşmaya Başla';
+                        };
+
+                        await audio.play();
+                    } else {
+                        throw new Error('TTS failed');
+                    }
+                } catch (error) {
+                    console.error('Speech error:', error);
+                    this.voiceButton.classList.remove('speaking');
+                    this.voiceButton.innerHTML = '🎤';
+                    this.voiceStatus.textContent = 'Hazır - Konuşmaya Başla';
+                }
+            }
+
+            addConversationItem(text, sender) {
+                this.conversation.push({ text, sender, time: new Date() });
+
+                const item = document.createElement('div');
+                item.className = `conversation-item ${sender}`;
+                item.textContent = text;
+
+                this.conversationHistory.appendChild(item);
+                this.conversationHistory.classList.add('active');
+                this.conversationHistory.scrollTop = this.conversationHistory.scrollHeight;
+
+                // Hide history after 5 seconds
+                setTimeout(() => {
+                    if (this.conversationHistory.children.length > 5) {
+                        this.conversationHistory.classList.remove('active');
+                    }
+                }, 5000);
+            }
+
+            handleError(error) {
+                console.error('Voice error:', error);
+
+                let errorMessage = '';
+                switch(error) {
+                    case 'not-allowed':
+                    case 'permission-denied':
+                        errorMessage = '🔒 Mikrofon izni gerekli! Tarayıcıdan izin verin.';
+                        break;
+                    case 'no-speech':
+                        errorMessage = 'Ses algılanamadı. Tekrar deneyin.';
+                        break;
+                    case 'speech-recognition-not-supported':
+                        errorMessage = 'Bu tarayıcı ses tanıma desteklemiyor.';
+                        break;
+                    default:
+                        errorMessage = 'Ses hatası: ' + error;
+                }
+
+                this.voiceStatus.textContent = 'Hata';
+                this.voiceText.textContent = errorMessage;
+
+                setTimeout(() => {
+                    this.voiceStatus.textContent = 'Hazır - Konuşmaya Başla';
+                    this.voiceText.textContent = 'Mikrofona dokun ve konuşmaya başla';
+                }, 3000);
+            }
+        }
+
+        function clearHistory() {
+            const history = document.getElementById('conversationHistory');
+            history.innerHTML = '';
+            history.classList.remove('active');
+        }
+
+        function goToChat() {
+            window.location.href = '/';
+        }
+
+        // Initialize voice interface
+        const voiceInterface = new VoiceInterface();
+    </script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+version: "3.1"
+
+nlu:
+- intent: greet
+  examples: |
+    - hey
+    - hello
+    - hi
+    - good morning
+    - good evening
+    - hey there
+
+- intent: goodbye
+  examples: |
+    - bye
+    - goodbye
+    - see you later
+    - take care
+    - have a good day
+
+- intent: affirm
+  examples: |
+    - yes
+    - yeah
+    - indeed
+    - that's right
+    - correct
+    - sure
+
+- intent: deny
+  examples: |
+    - no
+    - nope
+    - never
+    - I don't think so
+    - don't like that
+    - no way
+
+- intent: request_selling
+  examples: |
+    - I want to buy solar panels
+    - I'm interested in purchasing solar panels
+    - I'd like to get solar panels
+    - I want to buy
+    - purchase solar panels
+    - buy solar panels
+    - I need solar panels
+    - I'm looking to buy solar panels
+
+- intent: request_information
+  examples: |
+    - I need information about solar panels
+    - tell me about solar panels
+    - I want to learn about solar panels
+    - can you explain solar panels
+    - what are solar panels
+    - how do solar panels work
+    - information about solar panels
+    - solar panel details
+
+- intent: ask_price
+  examples: |
+    - how much do solar panels cost
+    - what's the price
+    - pricing information
+    - cost of solar panels
+    - how expensive are solar panels
+    - price range
+    - what's the investment
+
+- intent: ask_benefits
+  examples: |
+    - what are the benefits of solar panels
+    - advantages of solar energy
+    - why should I install solar panels
+    - pros of solar panels
+    - benefits of solar power
+    - advantages of going solar
+
+- intent: ask_types
+  examples: |
+    - what types of solar panels do you have
+    - what solar panel options are available
+    - different types of solar panels
+    - what are the options
+    - available solar panels
+    - solar panel varieties
+
+- intent: ask_installation
+  examples: |
+    - how do you install solar panels
+    - installation process
+    - solar panel installation
+    - how long does installation take
+    - do you provide installation
+    - installation details
+
+- intent: ask_maintenance
+  examples: |
+    - how do I maintain solar panels
+    - solar panel maintenance
+    - cleaning solar panels
+    - upkeep required
+    - how to care for solar panels
+
+- intent: provide_location
+  examples: |
+    - I live in [New York](location)
+    - My location is [California](location)
+    - I'm in [Texas](location)
+    - [Florida](location)
+    - My address is in [Arizona](location)
+    - Based in [Illinois](location)
+
+- intent: provide_energy_usage
+  examples: |
+    - I use [1000](energy_usage) kWh per month
+    - My monthly usage is [1500](energy_usage) kWh
+    - Around [500](energy_usage) kWh monthly
+    - [2000](energy_usage) kWh per month
+    - I consume [800](energy_usage) kWh
+
+- intent: ask_financing
+  examples: |
+    - do you offer financing
+    - payment options
+    - solar loans
+    - financing plans
+    - can I pay in installments
+    - payment methods
+
+- intent: ask_warranty
+  examples: |
+    - what's the warranty
+    - warranty period
+    - guarantee information
+    - how long is the warranty
+    - warranty coverage
+    - product guarantee
+
+- intent: thankyou
+  examples: |
+    - thank you
+    - thanks
+    - appreciate it
+    - that's helpful
+    - great information
+    - thanks for the help
+
+- intent: out_of_scope
+  examples: |
+    - what's the weather
+    - tell me a joke
+    - who is the president
+    - I'm hungry
+    - what time is it
+    - sports scores
+    - movie recommendations

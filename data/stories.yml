@@ -1,0 +1,140 @@
+version: "3.1"
+
+stories:
+- story: Happy path - selling flow
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: request_selling
+  - action: utter_selling_intro
+  - intent: provide_location
+    entities:
+    - location: "California"
+  - slot_was_set:
+    - location: "California"
+  - action: utter_location_received
+  - intent: provide_energy_usage
+    entities:
+    - energy_usage: 1000.0
+  - slot_was_set:
+    - energy_usage: 1000.0
+  - action: utter_energy_usage_received
+  - action: action_provide_recommendation
+  - intent: affirm
+  - action: action_ask_for_contact
+  - intent: thankyou
+  - action: utter_thankyou
+
+- story: Information seeking flow
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: request_information
+  - action: utter_information_intro
+  - intent: ask_benefits
+  - action: utter_benefits
+  - intent: ask_price
+  - action: utter_price_range
+  - intent: ask_types
+  - action: utter_types_panels
+  - intent: ask_installation
+  - action: utter_installation_process
+  - intent: thankyou
+  - action: utter_thankyou
+
+- story: Location and energy collection
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: request_selling
+  - action: utter_selling_intro
+  - intent: provide_energy_usage
+    entities:
+    - energy_usage: 1500.0
+  - slot_was_set:
+    - energy_usage: 1500.0
+  - action: utter_ask_location
+  - intent: provide_location
+    entities:
+    - location: "Texas"
+  - slot_was_set:
+    - location: "Texas"
+  - action: action_provide_recommendation
+
+- story: Financing and warranty inquiry
+  steps:
+  - intent: request_information
+  - action: utter_information_intro
+  - intent: ask_financing
+  - action: utter_financing_options
+  - intent: ask_warranty
+  - action: utter_warranty
+  - intent: request_selling
+  - action: utter_selling_intro
+
+- story: Maintenance and types inquiry
+  steps:
+  - intent: request_information
+  - action: utter_information_intro
+  - intent: ask_types
+  - action: utter_types_panels
+  - intent: ask_maintenance
+  - action: utter_maintenance
+  - intent: request_selling
+  - action: utter_selling_intro
+
+- story: Direct to selling
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: request_selling
+  - action: utter_selling_intro
+  - intent: provide_location
+    entities:
+    - location: "Florida"
+  - slot_was_set:
+    - location: "Florida"
+  - intent: ask_price
+  - action: utter_price_range
+  - intent: affirm
+  - action: utter_ask_location
+
+- story: Out of scope handling
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: out_of_scope
+  - action: utter_out_of_scope
+  - intent: request_information
+  - action: utter_information_intro
+
+- story: Goodbye interaction
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: request_information
+  - action: utter_information_intro
+  - intent: ask_benefits
+  - action: utter_benefits
+  - intent: thankyou
+  - action: utter_thankyou
+  - intent: goodbye
+  - action: utter_goodbye
+
+- story: System size calculation
+  steps:
+  - intent: provide_energy_usage
+    entities:
+    - energy_usage: 800.0
+  - slot_was_set:
+    - energy_usage: 800.0
+  - action: action_calculate_system_size
+
+- story: Location specific information
+  steps:
+  - intent: provide_location
+    entities:
+    - location: "Arizona"
+  - slot_was_set:
+    - location: "Arizona"
+  - action: action_provide_location_info

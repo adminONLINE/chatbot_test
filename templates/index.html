@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CW Enerji - Güneş Paneli Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .chat-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .chat-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .chat-header .status {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .chat-header .status::before {
+            content: "🟢";
+            margin-right: 5px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            position: relative;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin: 0 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .message.user .message-avatar {
+            order: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message.bot .message-avatar {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 15px;
+            align-items: center;
+            color: #666;
+            font-style: italic;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+        }
+
+        .typing-indicator::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ff6b35;
+            margin-right: 8px;
+            animation: pulse 1s infinite;
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .chat-input-form {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+        }
+
+        .chat-input:focus {
+            border-color: #ff6b35;
+        }
+
+        .send-button {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: transform 0.2s;
+        }
+
+        .send-button:hover {
+            transform: scale(1.1);
+        }
+
+        .send-button:active {
+            transform: scale(0.95);
+        }
+
+        .voice-button {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s;
+            margin-left: 5px;
+        }
+
+        .voice-button:hover {
+            transform: scale(1.05);
+        }
+
+        .voice-button.listening {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            animation: pulse 1.5s infinite;
+        }
+
+        .voice-button.speaking {
+            background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
+            animation: pulse 1s infinite;
+        }
+
+        .voice-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .quick-actions {
+            padding: 15px 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .quick-action-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 20px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+            flex: 1;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .quick-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .quick-action-btn:active {
+            transform: translateY(0);
+        }
+
+        .quick-action-btn:nth-child(1) {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            box-shadow: 0 4px 10px rgba(255, 107, 53, 0.3);
+        }
+
+        .quick-action-btn:nth-child(1):hover {
+            box-shadow: 0 6px 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .quick-action-btn:nth-child(2) {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+        }
+
+        .quick-action-btn:nth-child(2):hover {
+            box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .quick-action-btn:nth-child(3) {
+            background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
+            box-shadow: 0 4px 10px rgba(156, 39, 176, 0.3);
+        }
+
+        .quick-action-btn:nth-child(3):hover {
+            box-shadow: 0 6px 15px rgba(156, 39, 176, 0.4);
+        }
+
+        .interactive-menu {
+            margin: 15px 0;
+            padding: 0;
+        }
+
+        .menu-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .menu-option {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            margin: 8px 0;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            pointer-events: auto;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .menu-option:hover {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            border-color: #ff6b35;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 107, 53, 0.2);
+        }
+
+        .menu-option:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(255, 107, 53, 0.2);
+        }
+
+        /* Touch feedback for mobile */
+        @media (hover: none) and (pointer: coarse) {
+            .menu-option:active {
+                background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+                color: white;
+                border-color: #ff6b35;
+            }
+        }
+
+        .menu-option-text {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .menu-option-desc {
+            font-size: 12px;
+            opacity: 0.8;
+            line-height: 1.3;
+        }
+
+        .menu-option:hover .menu-option-desc {
+            opacity: 0.9;
+        }
+
+        .info-list {
+            margin: 15px 0;
+            padding: 0;
+        }
+
+        .list-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .list-item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            margin: 10px 0;
+            padding: 15px;
+            transition: all 0.2s ease;
+        }
+
+        .list-item:hover {
+            background: #fff;
+            border-color: #ff6b35;
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.1);
+        }
+
+        .list-item-title {
+            font-weight: 600;
+            font-size: 15px;
+            color: #ff6b35;
+            margin-bottom: 8px;
+        }
+
+        .list-item-details {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .list-item-details li {
+            padding: 3px 0;
+            font-size: 13px;
+            color: #555;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .list-item-details li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #ff6b35;
+            font-weight: bold;
+        }
+
+        .list-footer {
+            margin-top: 15px;
+            padding: 10px 0;
+            border-top: 1px solid #e9ecef;
+            font-size: 12px;
+            color: #666;
+            font-style: italic;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .chat-container {
+                height: 500px;
+                margin: 0 10px;
+            }
+
+            .message-content {
+                max-width: 80%;
+            }
+
+            .menu-option {
+                cursor: pointer;
+                -webkit-tap-highlight-color: rgba(255, 107, 53, 0.3);
+                touch-action: manipulation;
+            }
+
+            .chat-input {
+                font-size: 16px !important;
+                -webkit-appearance: none !important;
+                touch-action: manipulation;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>CW Enerji</h1>
+        <p>Güneş enerjisi çözümleriniz için güvenilir iş ortağınız</p>
+    </div>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>Güneş Asistanı</h2>
+            <div class="status">Çevrimiçi - Yardıma hazır!</div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot">
+                <div class="message-avatar">CW</div>
+                <div class="message-content">
+                    Merhaba! CW Enerji'ye hoş geldiniz. Size nasıl yardımcı olabilirim?
+                </div>
+            </div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+            <span>Güneş asistanı yazıyor...</span>
+        </div>
+
+        <!-- Quick actions kaldırıldı -->
+
+        <div class="quick-actions">
+            <button type="button" class="quick-action-btn" onclick="goToMainMenu()">
+                🏠 Ana Menü
+            </button>
+            <button type="button" class="quick-action-btn" onclick="goBack()">
+                ⬅️ Geri
+            </button>
+            <button type="button" class="quick-action-btn" onclick="goToVoice()">
+                📞 Sesli
+            </button>
+        </div>
+
+        <div class="chat-input-container">
+            <form class="chat-input-form" id="chatForm">
+                <input
+                    type="text"
+                    class="chat-input"
+                    id="chatInput"
+                    placeholder="Mesajınızı buraya yazın..."
+                    autocomplete="off"
+                    required
+                >
+                <button type="submit" class="send-button">
+                    <span>➤</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        class SolarChatbot {
+            constructor() {
+                this.chatMessages = document.getElementById('chatMessages');
+                this.chatForm = document.getElementById('chatForm');
+                this.chatInput = document.getElementById('chatInput');
+                this.typingIndicator = document.getElementById('typingIndicator');
+                this.voiceButton = document.getElementById('voiceButton');
+
+                this.apiUrl = '/api/chat';
+                this.conversationHistory = [];
+
+                this.initEventListeners();
+                this.initVoiceSupport();
+            }
+
+            initEventListeners() {
+                this.chatForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.sendMessage();
+                });
+
+                // Enable pressing Enter to send message
+                this.chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+            }
+
+            async sendMessage() {
+                const message = this.chatInput.value.trim();
+                if (!message) return;
+
+                // Add user message to chat
+                this.addMessage(message, 'user');
+                this.chatInput.value = '';
+
+                // Show typing indicator
+                this.showTypingIndicator();
+
+                // Send to processing function
+                this.processMessage(message);
+            }
+
+            addMessage(response, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}`;
+
+                const avatar = document.createElement('div');
+                avatar.className = 'message-avatar';
+                avatar.textContent = sender === 'user' ? '👤' : 'CW';
+
+                const content = document.createElement('div');
+                content.className = 'message-content';
+
+                // Check if response is a menu, list, or text
+                if (typeof response === 'object' && response.type === 'menu') {
+                    // Create interactive menu
+                    const title = document.createElement('div');
+                    title.className = 'menu-title';
+                    title.textContent = response.title;
+                    content.appendChild(title);
+
+                    const menuContainer = document.createElement('div');
+                    menuContainer.className = 'interactive-menu';
+
+                    response.options.forEach(option => {
+                        const menuOption = document.createElement('div');
+                        menuOption.className = 'menu-option';
+
+                        const optionText = document.createElement('div');
+                        optionText.className = 'menu-option-text';
+                        optionText.textContent = option.text;
+
+                        const optionDesc = document.createElement('div');
+                        optionDesc.className = 'menu-option-desc';
+                        optionDesc.textContent = option.description;
+
+                        menuOption.appendChild(optionText);
+                        menuOption.appendChild(optionDesc);
+
+                        // Add event listeners with better touch handling
+                        const chatbotInstance = this;
+                        let touchStarted = false;
+                        let touchMoved = false;
+
+                        menuOption.addEventListener('touchstart', function(e) {
+                            touchStarted = true;
+                            touchMoved = false;
+                            // Don't prevent default immediately to allow scrolling
+                        }, { passive: true });
+
+                        menuOption.addEventListener('touchmove', function(e) {
+                            touchMoved = true;
+                        }, { passive: true });
+
+                        menuOption.addEventListener('touchend', function(e) {
+                            if (touchStarted && !touchMoved) {
+                                e.preventDefault();
+                                chatbotInstance.sendMenuClick(option.action);
+                            }
+                            touchStarted = false;
+                            touchMoved = false;
+                        });
+
+                        menuOption.addEventListener('click', function(e) {
+                            if (!touchStarted) {
+                                e.preventDefault();
+                                chatbotInstance.sendMenuClick(option.action);
+                            }
+                        });
+
+                        menuContainer.appendChild(menuOption);
+                    });
+
+                    content.appendChild(menuContainer);
+                } else if (typeof response === 'object' && response.type === 'list') {
+                    // Create info list
+                    const title = document.createElement('div');
+                    title.className = 'list-title';
+                    title.textContent = response.title;
+                    content.appendChild(title);
+
+                    const listContainer = document.createElement('div');
+                    listContainer.className = 'info-list';
+
+                    response.items.forEach(item => {
+                        const listItem = document.createElement('div');
+                        listItem.className = 'list-item';
+
+                        const itemTitle = document.createElement('div');
+                        itemTitle.className = 'list-item-title';
+                        itemTitle.textContent = item.title;
+
+                        const itemDetails = document.createElement('ul');
+                        itemDetails.className = 'list-item-details';
+
+                        item.details.forEach(detail => {
+                            const detailLi = document.createElement('li');
+                            detailLi.textContent = detail;
+                            itemDetails.appendChild(detailLi);
+                        });
+
+                        listItem.appendChild(itemTitle);
+                        listItem.appendChild(itemDetails);
+                        listContainer.appendChild(listItem);
+                    });
+
+                    if (response.footer) {
+                        const footer = document.createElement('div');
+                        footer.className = 'list-footer';
+                        footer.textContent = response.footer;
+                        listContainer.appendChild(footer);
+                    }
+
+                    content.appendChild(listContainer);
+                } else {
+                    // Handle text content
+                    const text = typeof response === 'object' ? response.content : response;
+                    content.textContent = text;
+                }
+
+                messageDiv.appendChild(avatar);
+                messageDiv.appendChild(content);
+
+                this.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+
+            sendMenuClick(action) {
+                // Add user message to show what they clicked
+                this.addMessage(action, 'user');
+
+                // Show typing indicator
+                this.showTypingIndicator();
+
+                // Send the action to the server
+                this.processMessage(action);
+            }
+
+            async processMessage(message) {
+                try {
+                    const response = await fetch(this.apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            sender: 'user',
+                            message: message
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    this.hideTypingIndicator();
+
+                    // Process bot responses
+                    if (data && data.length > 0) {
+                        data.forEach(response => {
+                            setTimeout(() => {
+                                this.addMessage(response, 'bot');
+                            }, 300);
+                        });
+                    } else {
+                        // Fallback response
+                        this.addMessage("I'm sorry, I'm having trouble processing your request right now. Please try again or contact our support team.", 'bot');
+                    }
+
+                } catch (error) {
+                    this.hideTypingIndicator();
+                    console.error('Error:', error);
+
+                    // Show fallback response
+                    this.addMessage("I'm having trouble connecting to our servers. Please check your connection and try again.", 'bot');
+                }
+            }
+
+            showTypingIndicator() {
+                this.typingIndicator.classList.add('active');
+                this.scrollToBottom();
+            }
+
+            hideTypingIndicator() {
+                this.typingIndicator.classList.remove('active');
+            }
+
+            scrollToBottom() {
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+            }
+
+            initVoiceSupport() {
+                // Check if browser supports Web Speech API
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    this.isVoiceSupported = true;
+                    this.initVoiceRecognition();
+                    this.initVoiceSynthesis();
+
+                    // Add click event to voice button
+                    this.voiceButton.addEventListener('click', () => this.toggleVoiceRecognition());
+
+                    // Add touch support for mobile
+                    this.voiceButton.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        this.toggleVoiceRecognition();
+                    });
+
+                } else {
+                    this.isVoiceSupported = false;
+                    this.voiceButton.style.display = 'none';
+                    console.log('Voice recognition not supported in this browser');
+                }
+            }
+
+            initVoiceRecognition() {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                this.recognition = new SpeechRecognition();
+
+                this.recognition.continuous = false;
+                this.recognition.interimResults = true;
+                this.recognition.lang = 'tr-TR'; // Turkish language support
+
+                this.recognition.onstart = () => {
+                    this.voiceButton.classList.add('listening');
+                    this.voiceButton.innerHTML = '🎙';
+
+                    // Show listening message
+                    this.addMessage('🎙 Dinliyorum... Lütfen konuşun.', 'bot');
+                };
+
+                this.recognition.onresult = (event) => {
+                    let finalTranscript = '';
+                    let interimTranscript = '';
+
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript;
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+
+                    if (finalTranscript) {
+                        this.chatInput.value = finalTranscript;
+                        this.sendMessage();
+                    }
+                };
+
+                this.recognition.onerror = (event) => {
+                    console.error('Speech recognition error:', event.error);
+                    this.voiceButton.classList.remove('listening');
+                    this.voiceButton.innerHTML = '🎤';
+
+                    let errorMessage = 'Ses tanıma hatası: ';
+
+                    switch(event.error) {
+                        case 'not-allowed':
+                        case 'permission-denied':
+                            errorMessage = '🔒 Mikrofon izni gerekli!\n\nÇözümler:\n1. Tarayıcıdan mikrofon izni verin\n2. HTTPS üzerinden bağlanın\n3. Chrome/Firefox kullanın\n\nVeya yazarak konuşabilirsiniz.';
+                            break;
+                        case 'no-speech':
+                            errorMessage = 'Ses algılanamadı. Lütfen tekrar deneyin.';
+                            break;
+                        case 'audio-capture':
+                            errorMessage = 'Mikrofon bulunamadı veya kullanılamıyor.';
+                            break;
+                        case 'network':
+                            errorMessage = 'Ağ hatası. İnternet bağlantınızı kontrol edin.';
+                            break;
+                        default:
+                            errorMessage = 'Ses tanıma hatası: ' + event.error;
+                    }
+
+                    this.addMessage(errorMessage, 'bot');
+                };
+
+                this.recognition.onend = () => {
+                    this.voiceButton.classList.remove('listening');
+                    this.voiceButton.innerHTML = '🎤';
+                };
+            }
+
+            initVoiceSynthesis() {
+                // Google TTS API is supported via our backend
+                this.isSynthesisSupported = true;
+                console.log('Google TTS backend support enabled');
+            }
+
+            toggleVoiceRecognition() {
+                if (this.recognition) {
+                    if (this.recognition.continuous || this.voiceButton.classList.contains('listening')) {
+                        this.stopVoiceRecognition();
+                    } else {
+                        this.startVoiceRecognition();
+                    }
+                }
+            }
+
+            startVoiceRecognition() {
+                if (this.recognition) {
+                    try {
+                        this.recognition.start();
+                    } catch (error) {
+                        console.error('Error starting speech recognition:', error);
+                        this.addMessage('Ses tanıma başlatılamıyor. Lütfen tarayıcınızın ses özelliğini kontrol edin.', 'bot');
+                    }
+                }
+            }
+
+            stopVoiceRecognition() {
+                if (this.recognition) {
+                    this.recognition.stop();
+                }
+            }
+
+            async speak(text) {
+                if (!text) return;
+
+                try {
+                    // Show speaking state
+                    this.voiceButton.classList.add('speaking');
+                    this.voiceButton.innerHTML = '🔊';
+
+                    // Use Google TTS API for better Turkish pronunciation
+                    const response = await fetch('/api/tts', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ text: text })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+
+                        // Create audio element and play
+                        const audio = new Audio('data:audio/mp3;base64,' + data.audio);
+
+                        audio.onended = () => {
+                            this.voiceButton.classList.remove('speaking');
+                            this.voiceButton.innerHTML = '🎤';
+                        };
+
+                        audio.onerror = () => {
+                            console.error('Audio playback error');
+                            this.voiceButton.classList.remove('speaking');
+                            this.voiceButton.innerHTML = '🎤';
+                        };
+
+                        await audio.play();
+                    } else {
+                        throw new Error('TTS API error');
+                    }
+                } catch (error) {
+                    console.error('Speech synthesis error:', error);
+                    this.voiceButton.classList.remove('speaking');
+                    this.voiceButton.innerHTML = '🎤';
+                }
+            }
+
+            // Override addMessage to include voice responses - LISTE FORMATI
+            addMessage(response, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}`;
+
+                const avatar = document.createElement('div');
+                avatar.className = 'message-avatar';
+                avatar.textContent = sender === 'user' ? '👤' : 'CW';
+
+                const content = document.createElement('div');
+                content.className = 'message-content';
+
+                // HER CEVABI LİSTE FORMATINDA GÖSTER
+                if (sender === 'bot') {
+                    // Bot cevaplarını her zaman liste formatında göster
+                    let responseText = '';
+
+                    if (typeof response === 'object') {
+                        responseText = response.content || response.title || 'Cevap alınamadı';
+                    } else {
+                        responseText = response;
+                    }
+
+                    // Metni satırlara böl ve liste yap
+                    const lines = responseText.split('\n').filter(line => line.trim());
+                    const listContainer = document.createElement('div');
+                    listContainer.className = 'info-list';
+
+                    lines.forEach((line, index) => {
+                        const listItem = document.createElement('div');
+                        listItem.className = 'list-item';
+
+                        // Eğer ana menü ise, menü elemanları yap
+                        if (line.includes('SATIN AL') || line.includes('BİLGİ') || line.includes('FİYAT') || line.includes('KURULUM')) {
+                            const itemTitle = document.createElement('div');
+                            itemTitle.className = 'list-item-title clickable';
+                            itemTitle.textContent = line.trim();
+                            itemTitle.style.cursor = 'pointer';
+                            itemTitle.style.background = 'linear-gradient(135deg, #ff6b35 0%, #f7931e 100%)';
+                            itemTitle.style.color = 'white';
+                            itemTitle.style.padding = '12px 16px';
+                            itemTitle.style.borderRadius = '10px';
+                            itemTitle.style.margin = '5px 0';
+                            itemTitle.style.fontWeight = 'bold';
+
+                            // Click event ekle
+                            const chatbotInstance = this;
+                            itemTitle.addEventListener('click', function() {
+                                chatbotInstance.sendMessage(line.trim());
+                            });
+
+                            listItem.appendChild(itemTitle);
+                        } else if (line.includes('•') || line.includes('-') || /^\d+\./.test(line.trim())) {
+                            // Madde işaretli satırlar
+                            const itemTitle = document.createElement('div');
+                            itemTitle.className = 'list-item-title';
+                            itemTitle.textContent = line.trim();
+                            itemTitle.style.color = '#ff6b35';
+                            itemTitle.style.fontWeight = 'bold';
+                            itemTitle.style.margin = '8px 0';
+                            listItem.appendChild(itemTitle);
+                        } else {
+                            // Normal metin
+                            const itemTitle = document.createElement('div');
+                            itemTitle.className = 'list-item-title';
+                            itemTitle.textContent = line.trim();
+                            listItem.appendChild(itemTitle);
+                        }
+
+                        listContainer.appendChild(listItem);
+                    });
+
+                    content.appendChild(listContainer);
+
+                    // Sesli yanıt
+                    if (this.isSynthesisSupported) {
+                        this.speak(responseText);
+                    }
+
+                } else {
+                    // User mesajları normal metin
+                    content.textContent = response;
+                }
+
+                messageDiv.appendChild(avatar);
+                messageDiv.appendChild(content);
+
+                this.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+        }
+
+        // Initialize chatbot
+        window.chatbot = new SolarChatbot();
+
+        // Quick message function removed - not needed
+
+        // Focus on input when page loads
+        window.addEventListener('load', () => {
+            document.getElementById('chatInput').focus();
+        });
+
+        function goToVoice() {
+            window.location.href = '/voice';
+        }
+
+        function goToMainMenu() {
+            // Chatbot instance'ına eriş
+            if (window.chatbot) {
+                window.chatbot.sendMessage('merhaba');
+            }
+        }
+
+        function goBack() {
+            // Chatbot instance'ına eriş
+            if (window.chatbot) {
+                window.chatbot.sendMessage('geri');
+            }
+        }
+    </script>
+</body>
+</html>
