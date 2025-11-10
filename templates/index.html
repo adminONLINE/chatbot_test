@@ -551,6 +551,9 @@
                 <button type="submit" class="send-button">
                     <span>➤</span>
                 </button>
+                <button type="button" class="voice-button" id="voiceButton" title="Sesli giriş">
+                    <span>🎤</span>
+                </button>
             </form>
         </div>
     </div>
@@ -809,7 +812,7 @@
 
                 } else {
                     this.isVoiceSupported = false;
-                    this.voiceButton.style.display = 'none';
+                    if (this.voiceButton) this.voiceButton.style.display = 'none';
                     console.log('Voice recognition not supported in this browser');
                 }
             }
